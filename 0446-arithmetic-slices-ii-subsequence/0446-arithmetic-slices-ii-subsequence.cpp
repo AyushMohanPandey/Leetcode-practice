@@ -12,19 +12,27 @@ public:
     // return res;
     // }
     
+    // }
+    
     int numberOfArithmeticSlices(vector<int>& A, int res = 0) {
-    unordered_map<int, int> m[max(1, (int)A.size())];
-    unordered_set<int> s(begin(A), end(A));
-    for (int i = 0; i < A.size(); ++i)
-        for (int j = 0; j < i; ++j) {
-            long d = (long)A[i] - A[j];
-            if (d < INT_MIN || d > INT_MAX)
+    unordered_map<int, vector<int>> a_idx;
+    vector<vector<int>> dp(A.size(), vector<int>(A.size()));
+    for (auto i = 0; i < A.size(); ++i)
+        a_idx[A[i]].push_back(i);
+    for (auto i = 0; i < A.size(); ++i)
+        for (int j = 0; j < i; j++) {
+            auto prev = 2l * A[j] - A[i];
+            if (prev < INT_MIN || prev > INT_MAX)
                 continue;
-            auto it = m[j].find(d);
-            int cnt = it == end(m[j]) ? 0 : it->second;
-            if (s.count((long)A[i] + d))
-                m[i][d] += cnt + 1;
-            res += cnt;
+            auto it = a_idx.find(prev);
+            if (it != end(a_idx)) {
+                for (auto k : it->second) {
+                    if (k >= j)
+                        break;
+                    dp[i][j] += dp[j][k] + 1;
+                }
+            }
+            res += dp[i][j];
         }
     return res;
 }
